@@ -1,6 +1,6 @@
 from setuptools import setup
 
-version = '0.4.4'
+version = '0.4.5'
 setup(
     name='sqlalchemy-vertica-python',
     version=version,
@@ -22,4 +22,3 @@ setup(
         'vertica_python[namedparams]'
     ],
 )
-
