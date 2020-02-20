@@ -1,0 +1,134 @@
+version: 2.1
+
+quality_gem_version: &quality_gem_version python-37
+
+orbs:
+  quality: bluelabs/quality@0.0.2
+
+commands:
+  installvenv:
+    description: "Installs dependencies in venv if needed"
+    parameters:
+      python_version:
+        type: string
+    steps:
+      - restore_cache:
+          key: deps-v1-<<parameters.python_version>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
+      - run:
+          name: Install python deps in venv
+          command: |
+            if [ -f venv/bin/activate ]
+            then
+              . venv/bin/activate
+            else
+              python -m venv venv
+              . venv/bin/activate
+              pip install --progress-bar=off -r requirements.txt -e '.[movercli]'
+            fi
+            # venv/ dir doesn't seem to save enough info to keep the
+            # '-e .' installation.
+            pip install --progress-bar=off -e .
+      - save_cache:
+          key: deps-v1-<<parameters.python_version>>-{{ .Branch }}-{{ checksum "requirements.txt" }}-{{ checksum "setup.py" }}
+          paths:
+            - "venv"
+
+jobs:
+  test:
+    parameters:
+      python_version:
+        type: string
+        description: "Version of python to test against"
+      coverage:
+        type: boolean
+        # The python and pandas versions can affect the mypy and test
+        # coverage in subtle ways - coverage enforcement should be set
+        # only on the combination which matches local development.
+        default: false
+        description: "Enforce coverage not slipping"
+    docker:
+      - image: circleci/python:<<parameters.python_version>>
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            # Bluelabs Butler Key
+            - "94:ae:ed:17:d2:eb:57:08:82:b1:19:fc:27:7f:cf:3b"
+      - installvenv:
+          python_version: <<parameters.python_version>>
+      - run:
+          name: Run tests
+          command: |
+            . venv/bin/activate
+            make citest
+            if [ "<<parameters.coverage>>" == true ]
+            then
+              make cicoverage
+            fi
+      - run:
+          when: always
+          name: Archive coverage report
+          command: |
+            tar -czvf cover.tar.gz cover
+      - store_test_results:
+          path: test-reports
+      - store_artifacts:
+          path: test-reports
+      - store_artifacts:
+          path: cover.tar.gz
+
+workflows:
+  version: 2
+  quality:
+    jobs:
+      - quality/check-quality-job:
+          custom_rakefile: Rakefile.quality
+          image_tag: *quality_gem_version
+  test:
+    jobs:
+      # We try to test against all non-end-of-life Python versions:
+      #
+      # https://devguide.python.org/devcycle/#end-of-life-branches
+      - test:
+          name: test-3.5
+          python_version: "3.5"
+          requires:
+            - test-3.8
+          filters:
+            tags:
+              only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      - test:
+          name: test-3.6
+          python_version: "3.6"
+          requires:
+            - test-3.8
+          filters:
+            tags:
+              only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      - test:
+          name: test-3.7
+          python_version: "3.7"
+          requires:
+            - test-3.8
+          filters:
+            tags:
+              only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      - test:
+          name: test-3.8
+          python_version: "3.8"
+          coverage: true
+          filters:
+            tags:
+              only: /v\d+\.\d+\.\d+(-[\w]+)?/
+      - deploy:
+          context: Artifactory
+          requires:
+            - test-3.5
+            - test-3.6
+            - test-3.7
+            - test-3.8
+          filters:
+            tags:
+              only: /v\d+\.\d+\.\d+(-[\w]+)?/
+            branches:
+              ignore: /.*/

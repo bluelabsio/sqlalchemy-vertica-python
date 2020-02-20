@@ -1,6 +1,7 @@
 from setuptools import setup
+from setuputils import TestCoverageRatchetCommand, VerifyVersionCommand
 
-version = '0.4.4'
+version = '0.5.0'
 setup(
     name='sqlalchemy-vertica-python',
     version=version,
@@ -21,5 +22,8 @@ setup(
     install_requires=[
         'vertica_python[namedparams]'
     ],
+    cmdclass={
+        'coverage_ratchet': TestCoverageRatchetCommand,
+        'verify': VerifyVersionCommand,
+    },
 )
-
