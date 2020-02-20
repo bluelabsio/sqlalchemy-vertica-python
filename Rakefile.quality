@@ -29,4 +29,5 @@ Quality::Rake::Task.new do |t|
     'reek',
     'rubocop',
   ]
+  t.source_files_exclude_glob = '{.circleci/config.yml}'
 end
