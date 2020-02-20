@@ -51,10 +51,10 @@ jobs:
       - image: circleci/python:<<parameters.python_version>>
     steps:
       - checkout
-      - add_ssh_keys:
-          fingerprints:
-            # Bluelabs Butler Key
-            - "94:ae:ed:17:d2:eb:57:08:82:b1:19:fc:27:7f:cf:3b"
+      # - add_ssh_keys:
+      #     fingerprints:
+      #       # Bluelabs Butler Key
+      #       - "94:ae:ed:17:d2:eb:57:08:82:b1:19:fc:27:7f:cf:3b"
       - installvenv:
           python_version: <<parameters.python_version>>
       - run:
