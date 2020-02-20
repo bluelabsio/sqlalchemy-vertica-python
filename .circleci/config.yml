@@ -41,9 +41,9 @@ jobs:
         description: "Version of python to test against"
       coverage:
         type: boolean
-        # The python and pandas versions can affect the mypy and test
-        # coverage in subtle ways - coverage enforcement should be set
-        # only on the combination which matches local development.
+        # The python version can affect the mypy and test coverage in
+        # subtle ways - coverage enforcement should be set only on the
+        # version which matches local development.
         default: false
         description: "Enforce coverage not slipping"
     docker:
@@ -76,6 +76,45 @@ jobs:
           path: test-reports
       - store_artifacts:
           path: cover.tar.gz
+  deploy:
+    parameters:
+      python_version:
+        type: string
+        description: "Version of python to test against"
+        default: '3.6'
+    docker:
+      - image: circleci/python:<<parameters.python_version>>
+    steps:
+      - checkout
+      - installvenv:
+          python_version: <<parameters.python_version>>
+      - run:
+          name: verify git tag vs. version
+          command: |
+            . venv/bin/activate
+            python3 setup.py verify
+      - run:
+          name: init .pypirc
+          command: |
+            cat >> $HOME/.pypirc \<<EOF
+            [distutils]
+            index-servers =
+                pypi
+
+            [pypi]
+            username: $PYPI_USER
+            password: $PYPI_PASSWORD
+            EOF
+      - run:
+          name: create packages
+          command: |
+            . venv/bin/activate
+            make package
+      - run:
+          name: upload to pypi
+          command: |
+            . venv/bin/activate
+            twine upload -r pypi dist/*
 
 workflows:
   version: 2
