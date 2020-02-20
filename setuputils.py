@@ -26,10 +26,6 @@ class VerifyVersionCommand(install):
 class CoverageRatchetCommand(Command):
     description = 'Run coverage ratchet'
     user_options = []  # type: ignore
-    coverage_file: str
-    coverage_source_file: str
-    coverage_url: str
-    type_of_coverage: str
 
     def finalize_options(self) -> None:
         pass
