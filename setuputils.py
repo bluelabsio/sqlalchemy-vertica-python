@@ -46,14 +46,17 @@ class CoverageRatchetCommand(Command):
 
         if new_coverage < high_water_mark:
             raise Exception(
-                f"{self.type_of_coverage} coverage used to be {high_water_mark}; "
-                f"down to {new_coverage}%.  Fix by viewing '{self.coverage_url}'")
+                "{} coverage used to be {}; "
+                "down to {}%.  Fix by viewing '{}'".format(self.type_of_coverage,
+                                                           high_water_mark,
+                                                           new_coverage,
+                                                           self.coverage_url))
         elif new_coverage > high_water_mark:
             with open(self.coverage_file, 'w') as f:
                 f.write(str(new_coverage))
-            print(f"Just ratcheted coverage up to {new_coverage}%")
+            print("Just ratcheted coverage up to {}%".format(new_coverage))
         else:
-            print(f"Code coverage steady at {new_coverage}%")
+            print("Code coverage steady at {}%".format(new_coverage))
 
 
 class TestCoverageRatchetCommand(CoverageRatchetCommand):
