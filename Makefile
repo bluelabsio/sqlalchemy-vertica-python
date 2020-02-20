@@ -21,7 +21,7 @@ cicoverage: coverage
 	@test -z "$$(git status --porcelain metrics/coverage_high_water_mark)"
 
 flake8:
-	flake8 bluelabs_joblib tests
+	flake8 sqla_vertica_python tests
 
 quality-flake8:
 	make QUALITY_TOOL=flake8 quality
