@@ -24,7 +24,7 @@ commands:
               python -m venv venv
               . venv/bin/activate
               pip install --upgrade pip
-              pip install --progress-bar=off -r requirements.txt -e '.[movercli]'
+              pip install --progress-bar=off -r requirements.txt -e .
             fi
             # venv/ dir doesn't seem to save enough info to keep the
             # '-e .' installation.
