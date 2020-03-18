@@ -372,12 +372,12 @@ class VerticaDialect(PGDialect):
             query += " AND table_schema = '" + schema + "' \n"
 
         cols = set()
-        name = set()
+        name = None
         for row in connection.execute(query):
-             name.add(row[1])
+             name = row[1] if name is None else name
              cols.add(row[2])
 
-        return {"constrained_columns": cols, "name": name}
+        return {"constrained_columns": list(cols), "name": name}
 
 
     def get_foreign_keys(self, connection, table_name, schema, **kw):
