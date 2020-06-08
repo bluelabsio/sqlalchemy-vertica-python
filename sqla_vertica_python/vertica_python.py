@@ -161,7 +161,7 @@ class VerticaDialect(PGDialect):
 
     @reflection.cache
     def get_schema_names(self, connection, **kw):
-        query = "SELECT schema_name FROM v_catalog.schemata"
+        query = "SELECT schema_name FROM v_catalog.schemata ORDER BY schema_name"
         rs = connection.execute(query)
         return [row[0] for row in rs if not row[0].startswith('v_')]
 
