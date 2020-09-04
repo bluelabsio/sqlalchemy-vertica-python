@@ -42,6 +42,7 @@ class VerticaDialect(PGDialect):
         'LONG VARCHAR': sqltypes.VARCHAR,
         'VARCHAR2': sqltypes.VARCHAR,
         'TEXT': sqltypes.VARCHAR,
+        'UUID': sqltypes.VARCHAR,
 
         'DATE': sqltypes.DATE(),
         'DATETIME': sqltypes.DATETIME(),
