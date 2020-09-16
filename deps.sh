@@ -6,7 +6,7 @@ then
   brew update && ( brew upgrade pyenv || true )
 fi
 
-python_version=3.8.2
+python_version=3.8.5
 # zipimport.ZipImportError: can't decompress data; zlib not available:
 #    You may need `xcode-select --install` on OS X
 #    https://github.com/pyenv/pyenv/issues/451#issuecomment-151336786
